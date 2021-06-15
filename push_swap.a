@@ -1,0 +1,606 @@
+!<arch>
+//                                              40        `
+sort_onehundred.c/
+sort_fivehundred.c/
+
+push_swap.c/    0           0     0     644     1344      `
+#include "push_swap.h"
+
+int	same(int val, t_stack *stack_a)
+{
+	static int	a;
+
+	if (val == 0)
+		a++;
+	if (a > 1)
+		return (1);
+	while (stack_a)
+	{
+		if (val && stack_a->value == val)
+			return (1);
+		stack_a = stack_a->next;
+	}
+	return (0);
+}
+
+int	check_args(int argc, char *argv[], t_stack *stack_a, t_stack *head)
+{
+	int		i;
+	int		j;
+	long	val;
+
+	i = 1;
+	while (i < argc)
+	{
+		j = 0;
+		if (argv[i][0] == '-')
+			j++;
+		while (argv[i][j])
+			if (argv[i][j] < '0' || argv[i][j++] > '9')
+				return (1);
+		val = ft_atolong(argv[i]);
+		if (val > MAX || val < MIN || same((int)val, head))
+			return (1);
+		stack_a->value = (int)val;
+		if (++i == argc)
+			break ;
+		stack_a->next = (t_stack *)malloc(sizeof(t_stack));
+		*(stack_a->next) = (t_stack){0};
+		stack_a = stack_a->next;
+	}
+	return (0);
+}
+
+void	free_stacks(t_stack *stack_a)
+{
+	if (stack_a != NULL)
+	{
+		free_stacks(stack_a->next);
+		free(stack_a);
+	}
+}
+
+int	main(int argc, char *argv[])
+{
+	t_stack	*stack_a;
+	t_stack	*stack_b;
+	int		aux;
+
+	if (argc < 2)
+		return (1);
+	aux = 0;
+	stack_b = NULL;
+	stack_a = (t_stack *)malloc(sizeof(t_stack));
+	*stack_a = (t_stack){0};
+	if (check_args(argc, argv, stack_a, stack_a))
+	{
+		free_stacks(stack_a);
+		stack_a = NULL;
+		return (ft_putstr("Error\n", 1));
+	}
+	sort_stack(&stack_a, &stack_b);
+	free_stacks(stack_a);
+	stack_a = NULL;
+	return (aux);
+}
+cmd.c/          0           0     0     644     2064      `
+#include "push_swap.h"
+
+int	push(t_stack **stack_1, t_stack **stack_2)
+{
+	t_stack	*aux;
+
+	if (*stack_2 == NULL)
+		return (1);
+	aux = (*stack_2)->next;
+	(*stack_2)->next = *stack_1;
+	*stack_1 = *stack_2;
+	*stack_2 = aux;
+	return (1);
+}
+
+int	rotate(t_stack **stack_1)
+{
+	t_stack	*aux;
+	t_stack	*aux2;
+
+	if (*stack_1 == NULL || (*stack_1)->next == NULL)
+		return (1);
+	aux = *stack_1;
+	*stack_1 = (*stack_1)->next;
+	aux2 = *stack_1;
+	while (aux2->next)
+		aux2 = aux2->next;
+	aux2->next = aux;
+	aux2->next->next = NULL;
+	return (1);
+}
+
+int	rev_rotate(t_stack **stack_1)
+{
+	t_stack	*aux;
+	t_stack	*aux2;
+
+	if (*stack_1 == NULL || (*stack_1)->next == NULL)
+		return (-1);
+	if (!((*stack_1)->next->next))
+	{
+		aux = *stack_1;
+		*stack_1 = (*stack_1)->next;
+		(*stack_1)->next = aux;
+		aux->next = NULL;
+		return (1);
+	}
+	aux = *stack_1;
+	*stack_1 = (*stack_1)->next;
+	aux2 = *stack_1;
+	while (aux2->next->next)
+		aux2 = aux2->next;
+	*stack_1 = aux2->next;
+	aux2->next->next = aux;
+	aux2->next = NULL;
+	return (1);
+}
+
+int	swap(t_stack **stack_1)
+{
+	t_stack	*aux;
+
+	if (*stack_1 == NULL || (*stack_1)->next == NULL)
+		return (1);
+	aux = (*stack_1)->next;
+	(*stack_1)->next = aux->next;
+	aux->next = *stack_1;
+	*stack_1 = aux;
+	return (1);
+}
+
+int	parse_cmd(t_stack **stack_a, t_stack **stack_b, char *cmd, int flag)
+{
+	int	aux;
+
+	aux = 0;
+	if (flag)
+	{
+		ft_putstr(cmd, 1);
+		ft_putstr("\n", 1);
+	}
+	if (!ft_strncmp(cmd, "pa", 3))
+		aux = push(stack_a, stack_b);
+	if (!ft_strncmp(cmd, "pb", 3))
+		aux = push(stack_b, stack_a);
+	if (!(ft_strncmp(cmd, "ra", 3) && ft_strncmp(cmd, "rr", 3)))
+		aux = rotate(stack_a);
+	if (!(ft_strncmp(cmd, "rb", 3) && ft_strncmp(cmd, "rr", 3)))
+		aux = rotate(stack_b);
+	if (!(ft_strncmp(cmd, "rra", 4) && ft_strncmp(cmd, "rrr", 4)))
+		aux = rev_rotate(stack_a);
+	if (!(ft_strncmp(cmd, "rrb", 4) && ft_strncmp(cmd, "rrr", 4)))
+		aux = rev_rotate(stack_b);
+	if (!(ft_strncmp(cmd, "sa", 3) && ft_strncmp(cmd, "ss", 3)))
+		aux = swap(stack_a);
+	if (!(ft_strncmp(cmd, "sb", 3) && ft_strncmp(cmd, "ss", 3)))
+		aux = swap(stack_b);
+	return (aux);
+}
+final_check.c/  0           0     0     644     1000      `
+#include "push_swap.h"
+
+int	ft_putstr(char *s, int fd)
+{
+	int	n;
+
+	n = 0;
+	while (*s)
+	{
+		ft_putchar_fd(*s, fd);
+		s++;
+		n++;
+	}
+	return (n);
+}
+
+long	ft_atolong(const char *str)
+{
+	long int	count;
+	int			sign;
+
+	count = 0;
+	sign = 1;
+	while (*str == ' ' || (*str >= 9 && *str <= 13))
+		str++;
+	if (*str == '+' || *str == '-')
+	{
+		if (*str == '-')
+			sign = -1;
+		if (*str)
+			str++;
+	}
+	while (*str >= '0' && *str <= '9' && *str)
+	{
+		count = count * 10 + (*str - '0');
+		str++;
+	}
+	return ((long)(count * sign));
+}
+
+int	ft_stcsize(t_stack *stack)
+{
+	int	size;
+
+	size = 0;
+	while (stack)
+	{
+		size++;
+		stack = stack->next;
+	}
+	return (size);
+}
+
+int	isok(t_stack *stack_a, t_stack *stack_b, int flag)
+{
+	if (stack_b)
+		return (ft_putstr("KO\n", 1));
+	while (stack_a->next)
+	{
+		if (stack_a->value > stack_a->next->value)
+		{
+			if (flag)
+				return (ft_putstr("KO\n", 1));
+			else
+				return (0);
+		}
+		stack_a = stack_a->next;
+	}
+	if (flag)
+		return (ft_putstr("OK\n", 1));
+	else
+		return (1);
+}
+sort.c/         0           0     0     644     1797      `
+#include "push_swap.h"
+
+void	sort_two(t_stack **stack_a)
+{
+	if ((*stack_a)->value > (*stack_a)->next->value)
+		parse_cmd(stack_a, NULL, "sa", 1);
+}
+
+void	sort_three(t_stack **stack_a)
+{
+	int	first;
+	int	secnd;
+	int	third;
+
+	first = (*stack_a)->value;
+	secnd = (*stack_a)->next->value;
+	third = (*stack_a)->next->next->value;
+	if (secnd < first && first < third)
+		parse_cmd(stack_a, NULL, "sa", 1);
+	else if (first > third && third > secnd)
+		parse_cmd(stack_a, NULL, "ra", 1);
+	else if (first > third && secnd > first)
+		parse_cmd(stack_a, NULL, "rra", 1);
+	if (isok(*stack_a, NULL, 0))
+		return ;
+	parse_cmd(stack_a, NULL, "sa", 1);
+	sort_three(stack_a);
+}
+
+int	find_smallest(t_stack *stack)
+{
+	int	small;
+
+	small = stack->value;
+	while (stack)
+	{
+		if (stack->value < small)
+			small = stack->value;
+		stack = stack->next;
+	}
+	return (small);
+}
+
+void	sort_five(t_stack **stack_a, t_stack **stack_b, int	size)
+{
+	int	small;
+
+	while (size > 3)
+	{
+		small = find_smallest(*stack_a);
+		while ((*stack_a)->value != small)
+			parse_cmd(stack_a, NULL, "ra", 1);
+		parse_cmd(stack_a, stack_b, "pb", 1);
+		size--;
+	}
+	sort_three(stack_a);
+	if ((*stack_b)->next && (*stack_b)->value < (*stack_b)->next->value)
+		parse_cmd(stack_a, stack_b, "sb", 1);
+	while (*stack_b)
+		parse_cmd(stack_a, stack_b, "pa", 1);
+}
+
+void	sort_stack(t_stack **stack_a, t_stack **stack_b)
+{
+	int		size;
+	t_stat	stat;
+
+	if (isok(*stack_a, *stack_b, 0))
+		return ;
+	size = ft_stcsize(*stack_a);
+	if (size <= 1)
+		return ;
+	if (size == 2)
+		return (sort_two(stack_a));
+	if (size == 3)
+		return (sort_three(stack_a));
+	if (size <= 5)
+		return (sort_five(stack_a, stack_b, size));
+	find_stats(stack_a, &stat, size);
+	if (size <= 100)
+		return (sort_onehundred(stack_a, stack_b, &stat));
+	sort_fivehundred(stack_a, stack_b, &stat);
+}
+
+/0              0           0     0     644     2232      `
+#include "push_swap.h"
+
+int	check_rra(t_stack *stack_a, int ref)
+{
+	int	count;
+
+	if (!stack_a->next)
+		return (0);
+	// aux = stack_a->next->value;
+	// if ((!c && aux < ref) || (c && aux >= ref))
+	// 	return (0);
+	count = 0;
+	while (stack_a)
+	{
+		count++;
+		if (stack_a->value < ref)
+			count = 0;
+		stack_a = stack_a->next;
+	}
+	if (!count)
+		return (1);
+	return (0);
+}
+
+void	push_below_median(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
+{
+	int	count;
+	int	total;
+
+	count = 0;
+	total = stat->size;
+	while (count < ((stat->size / 2) + (stat->size % 2)) && stack_a)
+	{	
+		if ((*stack_a)->value < stat->median)
+		{	
+			parse_cmd(stack_a, stack_b, "pb", 1);
+			count++;
+		}
+		else
+		{
+			if (check_rra(*stack_a, stat->median))
+				parse_cmd(stack_a, stack_b, "rra", 1);
+			else
+				parse_cmd(stack_a, stack_b, "ra", 1);
+		}
+	}
+}
+
+void	push_above_median(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
+{
+	int	count;
+	int	total;
+
+	count = 0;
+	total = stat->size;
+	while (count < ((stat->size / 2) + (stat->size % 2)) && stack_a && total--)
+	{
+		if ((*stack_a)->value >= stat->median)
+		{
+			parse_cmd(stack_a, stack_b, "pb", 1);
+			count++;
+		}
+		else
+		{
+			parse_cmd(stack_a, stack_b, "ra", 1);
+		}
+	}
+}
+
+void	push_back_to_a(t_stack **stack_a, t_stack **stack_b)
+{
+	t_moves	moves;
+
+	moves = get_moves(*stack_b, ft_stcsize(*stack_b));
+	if (moves.flag == 1)
+		while ((*stack_b)->value != moves.high)
+			parse_cmd(stack_a, stack_b, "rb", 1);
+	if (moves.flag == 2)
+		while ((*stack_b)->value != moves.high)
+			parse_cmd(stack_a, stack_b, "rrb", 1);
+	if (moves.flag == 3)
+		while ((*stack_b)->value != moves.low)
+			parse_cmd(stack_a, stack_b, "rb", 1);
+	if (moves.flag == 4)
+		while ((*stack_b)->value != moves.low)
+			parse_cmd(stack_a, stack_b, "rrb", 1);
+	parse_cmd(stack_a, stack_b, "pa", 1);
+	if (moves.flag > 2)
+		parse_cmd(stack_a, stack_b, "ra", 1);
+}
+
+void	sort_onehundred(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
+{
+	push_below_median(stack_a, stack_b, stat);
+	while (*stack_b)
+		push_back_to_a(stack_a, stack_b);
+	push_above_median(stack_a, stack_b, stat);
+	while (*stack_b)
+		push_back_to_a(stack_a, stack_b);
+	while ((*stack_a)->value != stat->smallest)
+		parse_cmd(stack_a, stack_b, "ra", 1);
+	return ;
+}
+/19             0           0     0     644     1129      `
+#include "push_swap.h"
+
+void	get_limits(int limts[2], int flag, t_stat *stat)
+{
+	limts[0] = stat->smallest;
+	limts[1] = stat->biggest;
+	if (flag == 1)
+		limts[1] = stat->quarter;
+	if (flag == 2)
+	{
+		limts[0] = stat->quarter;
+		limts[1] = stat->median;
+	}
+	if (flag == 3)
+	{
+		limts[0] = stat->median;
+		limts[1] = stat->tquarter;
+	}
+	if (flag == 4)
+		limts[0] = stat->tquarter;
+}
+
+void	push_quarter(t_stack **stack_a, t_stack **stack_b, t_stat *stat, int f)
+{
+	int	count;
+	int	total;
+	int	l[2];
+
+	get_limits(l, f, stat);
+	count = 0;
+	total = stat->size;
+	while (count < (stat->size / 4 + 3) && stack_a && total--)
+	{	
+		if ((*stack_a)->value > l[0] && (*stack_a)->value <= l[1])
+		{
+			parse_cmd(stack_a, stack_b, "pb", 1);
+			count++;
+		}
+		else
+			parse_cmd(stack_a, stack_b, "ra", 1);
+	}
+}
+
+void	sort_fivehundred(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
+{
+	int	flag;
+
+	flag = 1;
+	while (flag < 5)
+	{
+		push_quarter(stack_a, stack_b, stat, flag);
+		while (*stack_b)
+			push_back_to_a(stack_a, stack_b);
+		while ((*stack_a)->value != stat->smallest)
+			parse_cmd(stack_a, stack_b, "ra", 1);
+		flag++;
+	}
+	return ;
+}
+
+stats_moves.c/  0           0     0     644     1817      `
+#include "push_swap.h"
+
+void	sort_lst(int *lst, int size)
+{
+	int		aux;
+	int		i;
+	int		j;
+
+	i = 0;
+	while (i < size - 1)
+	{
+		j = i + 1;
+		while (j < size)
+		{
+			if (lst[i] > lst[j])
+			{
+				aux = lst[i];
+				lst[i] = lst[j];
+				lst[j] = aux;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
+void	find_stats(t_stack **stack_a, t_stat *stat, int size)
+{
+	t_stack	*aux;
+	int		*lst;
+	int		i;
+
+	aux = *stack_a;
+	lst = (int *)malloc(sizeof(int) * (size + 1));
+	i = 0;
+	while (*stack_a)
+	{
+		lst[i++] = (*stack_a)->value;
+		*stack_a = (*stack_a)->next;
+	}
+	sort_lst(lst, size);
+	stat->smallest = lst[0];
+	stat->quarter = lst[size / 4];
+	stat->median = lst[size / 2];
+	stat->tquarter = lst[(size / 4)*3];
+	stat->size = size;
+	stat->biggest = lst[size - 1];
+	free(lst);
+	*stack_a = aux;
+}
+
+t_moves	lesser_moves(t_moves moves)
+{
+	if (moves.uphigh <= moves.uplow && moves.uphigh <= moves.downlow
+		&& moves.uphigh <= moves.downhigh)
+		moves.flag = 1;
+	else if (moves.downhigh < moves.uphigh && moves.downhigh <= moves.uplow
+		&& moves.downhigh <= moves.downlow)
+		moves.flag = 2;
+	else if (moves.uplow < moves.uphigh && moves.uplow < moves.downhigh
+		&& moves.uplow <= moves.downlow)
+		moves.flag = 3;
+	else if (moves.downlow < moves.uphigh && moves.downlow < moves.downhigh
+		&& moves.downlow < moves.uplow)
+		moves.flag = 4;
+	return (moves);
+}
+
+t_moves	get_moves(t_stack *stack, int size)
+{
+	int		count;
+	t_moves	moves;
+
+	count = 0;
+	moves.low = stack->value;
+	moves.high = stack->value;
+	while (stack)
+	{
+		count++;
+		if (stack->value >= moves.high)
+		{
+			moves.high = stack->value;
+			moves.uphigh = count;
+			moves.downhigh = size + 1 - count;
+		}
+		if (stack->value <= moves.low)
+		{
+			moves.low = stack->value;
+			moves.uplow = count;
+			moves.downlow = size + 1 - count;
+		}
+		stack = stack->next;
+	}
+	return (lesser_moves(moves));
+}
+
