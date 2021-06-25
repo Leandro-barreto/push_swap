@@ -6,9 +6,6 @@ int	check_rra(t_stack *stack_a, int ref)
 
 	if (!stack_a->next)
 		return (0);
-	// aux = stack_a->next->value;
-	// if ((!c && aux < ref) || (c && aux >= ref))
-	// 	return (0);
 	count = 0;
 	while (stack_a)
 	{
@@ -29,7 +26,7 @@ void	push_below_median(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
 
 	count = 0;
 	total = stat->size;
-	while (count < ((stat->size / 2) + (stat->size % 2)) && stack_a)
+	while (count < ((stat->size / 2)) && stack_a)
 	{	
 		if ((*stack_a)->value < stat->median)
 		{	
@@ -67,10 +64,12 @@ void	push_above_median(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
 	}
 }
 
-void	push_back_to_a(t_stack **stack_a, t_stack **stack_b)
+int	push_back_to_a(t_stack **stack_a, t_stack **stack_b)
 {
 	t_moves	moves;
+	int		above;
 
+	above = 0;
 	moves = get_moves(*stack_b, ft_stcsize(*stack_b));
 	if (moves.flag == 1)
 		while ((*stack_b)->value != moves.high)
@@ -87,6 +86,9 @@ void	push_back_to_a(t_stack **stack_a, t_stack **stack_b)
 	parse_cmd(stack_a, stack_b, "pa", 1);
 	if (moves.flag > 2)
 		parse_cmd(stack_a, stack_b, "ra", 1);
+	else
+		above++;
+	return (above);
 }
 
 void	sort_onehundred(t_stack **stack_a, t_stack **stack_b, t_stat *stat)

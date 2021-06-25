@@ -25,13 +25,17 @@ void	push_quarter(t_stack **stack_a, t_stack **stack_b, t_stat *stat, int f)
 	int	count;
 	int	total;
 	int	l[2];
+	int	c;
 
 	get_limits(l, f, stat);
 	count = 0;
 	total = stat->size;
-	while (count < (stat->size / 4 + 3) && stack_a && total--)
+	c = 1;
+	if (stat->size % 4)
+		c += stat->size % 4;
+	while (count < ((stat->size / 4) + c) && stack_a && total--)
 	{	
-		if ((*stack_a)->value > l[0] && (*stack_a)->value <= l[1])
+		if ((*stack_a)->value >= l[0] && (*stack_a)->value <= l[1])
 		{
 			parse_cmd(stack_a, stack_b, "pb", 1);
 			count++;
@@ -44,16 +48,20 @@ void	push_quarter(t_stack **stack_a, t_stack **stack_b, t_stat *stat, int f)
 void	sort_fivehundred(t_stack **stack_a, t_stack **stack_b, t_stat *stat)
 {
 	int	flag;
+	int	above;
 
 	flag = 1;
+	above = 0;
 	while (flag < 5)
 	{
 		push_quarter(stack_a, stack_b, stat, flag);
 		while (*stack_b)
-			push_back_to_a(stack_a, stack_b);
-		while ((*stack_a)->value != stat->smallest)
+			above += push_back_to_a(stack_a, stack_b);
+		while ((*stack_a)->value != stat->smallest && above--)
 			parse_cmd(stack_a, stack_b, "ra", 1);
 		flag++;
 	}
+	while ((*stack_a)->value != stat->smallest)
+		parse_cmd(stack_a, stack_b, "ra", 1);
 	return ;
 }

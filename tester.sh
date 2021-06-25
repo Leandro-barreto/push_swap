@@ -120,6 +120,7 @@ random_checker()
 	ERR=0
 	sum=0
 	count=0
+	max=0
 	for ((i = 0; i < NUM_TESTS; i++))
 		do 
 			ARG=`ruby -e "puts $2.to_a.shuffle.join(' ')"`
@@ -135,7 +136,10 @@ random_checker()
 			else
 				echo -en "${GREEN}▓${RESET}"
 			fi
-
+			if [ $RET2 -ge $max ];
+				then
+				max=$RET2
+			fi
 			sum=$((sum + $RET2))
 			((count++))
 	done
@@ -149,6 +153,7 @@ random_checker()
 		echo -en "${RED} Fail $ERR / $count"
 		echo -e " - Average $sum ${RESET}$"
 	fi
+	echo -e "Max = $max"
 }
 
 echo $FLAG
@@ -173,17 +178,18 @@ if [ "$FLAG" = "all" ] || [ "$FLAG" = "simple" ]; then
 	echo -e "\n${BOLD}Simple version${RESET}\n"
 	checker3 "Three numbers" "2 1 0"
 	checker5 "Five numbers" "1 5 2 4 3"
+	checker5 "Five numbers" "5 4 3 2 1"
 	random_checker "Random list of Five numbers" "(0..4)" 12
 fi
 
 if [ "$FLAG" = "all" ] || [ "$FLAG" = "middle" ]; then
 	echo -e "\n${BOLD}Middle version${RESET}\n"
 	echo -e "less than 700\t-> 5\nless than 900\t-> 4\nless than 1100\t-> 3\nless than 1300\t-> 2\nless than 1500\t-> 1\n"
-	random_checker "Random list of hundred numbers -50 to 49" "(-50..49)" 1500
+	random_checker "Random list of hundred numbers -50 to 49" "(-50..49)" 900
 fi
 
 if [ "$FLAG" = "all" ] || [ "$FLAG" = "advanced" ]; then
 	echo -e "\n${BOLD}Advanced version${RESET}\n"
 	echo -e "less than 5500\t-> 5\nless than 7000\t-> 4\nless than 8500\t-> 3\nless than 10000\t-> 2\nless than 11500\t-> 1\n"
-	random_checker "Random list of five hundred numbers 0 to 499" "(0..499)" 11500
+	random_checker "Random list of five hundred numbers 0 to 499" "(0..499)" 8500
 fi

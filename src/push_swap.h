@@ -66,7 +66,7 @@ void			sort_stack(t_stack **stack_a, t_stack **stack_b);
 ** sortonehundred.c
 */
 void			sort_onehundred(t_stack **s_a, t_stack **s_b, t_stat *s);
-void			push_back_to_a(t_stack **s_a, t_stack **s_b);
+int				push_back_to_a(t_stack **s_a, t_stack **s_b);
 
 /*
 ** sortfivehundred.c
@@ -78,5 +78,11 @@ void			sort_fivehundred(t_stack **s_a, t_stack **s_b, t_stat *s);
 */
 void			find_stats(t_stack **stack_a, t_stat *stat, int size);
 t_moves			get_moves(t_stack *stack, int size);
+
+/*
+** check_one_argc.c
+*/
+int				check_one_arg(char *text, t_stack *stack_a, t_stack *head);
+int				same(int val, t_stack *stack_a);
 
 #endif

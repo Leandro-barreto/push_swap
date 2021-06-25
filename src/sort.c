@@ -27,15 +27,19 @@ void	sort_three(t_stack **stack_a)
 	sort_three(stack_a);
 }
 
-int	find_smallest(t_stack *stack)
+int	find_smallest(t_stack *stack, int *flag)
 {
 	int	small;
 
 	small = stack->value;
 	while (stack)
 	{
+		*flag = 0;
 		if (stack->value < small)
+		{
 			small = stack->value;
+			*flag = 1;
+		}
 		stack = stack->next;
 	}
 	return (small);
@@ -44,12 +48,19 @@ int	find_smallest(t_stack *stack)
 void	sort_five(t_stack **stack_a, t_stack **stack_b, int	size)
 {
 	int	small;
+	int	flag;
 
+	flag = 0;
 	while (size > 3)
 	{
-		small = find_smallest(*stack_a);
+		small = find_smallest(*stack_a, &flag);
 		while ((*stack_a)->value != small)
-			parse_cmd(stack_a, NULL, "ra", 1);
+		{
+			if (flag)
+				parse_cmd(stack_a, NULL, "rra", 1);
+			else
+				parse_cmd(stack_a, NULL, "ra", 1);
+		}
 		parse_cmd(stack_a, stack_b, "pb", 1);
 		size--;
 	}

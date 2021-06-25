@@ -7,7 +7,8 @@ SRCS = src/push_swap.c \
 	   src/sort.c \
 	   src/sort_onehundred.c \
 	   src/sort_fivehundred.c \
-	   src/stats_moves.c
+	   src/stats_moves.c \
+	   src/check_one_argc.c
 SRCCHECK = src/checker.c src/cmd.c src/final_check.c
 
 CFLAGS = -Wall -Wextra -Werror -fsanitize=address
@@ -34,7 +35,7 @@ clean:
 	cd src/libft/ && make clean
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(NAME).a
 	rm -f checker
 	cd src/libft/ && rm -f libft.a
 

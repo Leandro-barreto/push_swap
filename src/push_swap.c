@@ -27,7 +27,7 @@ int	check_args(int argc, char *argv[], t_stack *stack_a, t_stack *head)
 	while (i < argc)
 	{
 		j = 0;
-		if (argv[i][0] == '-')
+		if (argv[i][0] == '-' && argv[i][1])
 			j++;
 		while (argv[i][j])
 			if (argv[i][j] < '0' || argv[i][j++] > '9')
@@ -58,22 +58,26 @@ int	main(int argc, char *argv[])
 {
 	t_stack	*stack_a;
 	t_stack	*stack_b;
-	int		aux;
 
 	if (argc < 2)
 		return (1);
-	aux = 0;
 	stack_b = NULL;
 	stack_a = (t_stack *)malloc(sizeof(t_stack));
 	*stack_a = (t_stack){0};
-	if (check_args(argc, argv, stack_a, stack_a))
+	if (argc == 2 && check_one_arg(argv[1], stack_a, stack_a))
 	{
 		free_stacks(stack_a);
 		stack_a = NULL;
-		return (ft_putstr("Error\n", 1));
+		return (ft_putstr("Error\n", 2));
+	}
+	if (argc > 2 && check_args(argc, argv, stack_a, stack_a))
+	{
+		free_stacks(stack_a);
+		stack_a = NULL;
+		return (ft_putstr("Error\n", 2));
 	}
 	sort_stack(&stack_a, &stack_b);
 	free_stacks(stack_a);
 	stack_a = NULL;
-	return (aux);
+	return (0);
 }
